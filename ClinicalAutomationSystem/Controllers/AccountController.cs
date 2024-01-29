@@ -1,0 +1,281 @@
+﻿using DataProvider;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ClinicalAutomationSystem.Controllers
+{
+    public class AccountController : Controller
+    {
+        UserClass user;
+        UsersData data = null;
+
+        public AccountController()
+        {
+            data = new UsersData();
+            user = new UserClass();
+        }
+        public ActionResult WelcomePage()
+        {
+            return View();
+        }
+        [HttpGet]
+        public ActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult Login(string inputEmail, string inputPassword)
+        {
+            User usr = user.LoginUsingEmailAndPassword(inputEmail, inputPassword);
+            if (usr == null)
+            {
+                Session["Invalid"] = true;
+                return View();
+            }
+            else
+            {
+                Session["UserId"] = usr.UserId;
+                Session["Name"] = usr.Name;
+                Session["RoleId"] = usr.RoleId;
+                //'Adminstrator'
+                if (usr.RoleId == 1)
+                {
+                    return RedirectToRoute(new
+                    {
+                        controller = "Admin",
+                        action = "index",
+                    });
+                }
+                //'Doctor'
+                else if (usr.RoleId == 2)
+                {
+                    return RedirectToRoute(new
+                    {
+                        controller = "Doctor",
+                        action = "Index",
+                    });
+                }
+                //'Patient'
+                else if (usr.RoleId == 3)
+                {
+                    return RedirectToRoute(new
+                    {
+                        controller = "Patient",
+                        action = "Index",
+                    });
+                }
+
+                //'Fontoffice'
+                else if (usr.RoleId == 4)
+                {
+                    return RedirectToRoute(new
+                    {
+                        controller = "Frontoffice",
+                        action = "Index",
+                    });
+                }
+                //'Pharmacy'
+                else if (usr.RoleId == 5)
+                {
+                    return RedirectToRoute(new
+                    {
+                        controller = "Pharmacy",
+                        action = "Index",
+                    });
+
+                }
+                else
+                {
+                    return View();
+                }
+            }
+
+        }
+        [HttpPost]
+        public ActionResult Logout()
+        {
+            if ((int)Session["userid"] == 0 && ((int)Session["RoleId"] != 1))
+            {
+                return RedirectToRoute(new
+                {
+                    controller = "account",
+                    action = "welcomepage",
+                });
+            }
+            Session["UserId"] = 0;
+            Session["Name"] = "";
+            Session["RoleId"] = 0;
+            Session["Invalid"] = false;
+            return RedirectToRoute(new
+            {
+                controller = "account",
+                action = "welcomepage",
+            });
+        }
+        [HttpGet]
+        public ActionResult EditUser()
+        {
+
+            User u = user.GetById((int)Session["UserId"]);
+            RedirectToAction("Index");
+            ViewBag.Edit = false;
+            return View(u);
+        }
+        [HttpPost]
+        public ActionResult EditUser(User usr)
+        {
+            if ((int)Session["userid"] == 0)
+            {
+                return RedirectToRoute(new
+                {
+                    controller = "account",
+                    action = "login",
+                });
+            }
+            bool res = user.Update(usr);
+            ViewBag.Edit = true;
+            User u = user.GetById(usr.UserId);
+            return View(u);
+        }
+
+        [HttpGet]
+        public ActionResult AddPatient()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddPatient(User usr)
+        {
+            int res = user.Add(usr);
+            return RedirectToAction("PatientLogin");
+        }
+
+        [HttpGet]
+        public ActionResult PatientLogin()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult PatientLogin(string inputEmail, string inputPassword)
+        {
+            User usr = user.LoginUsingEmailAndPassword(inputEmail, inputPassword);
+            if (usr == null)
+            {
+                Session["Invalid"] = true;
+                return View();
+            }
+            else
+            {
+                Session["UserId"] = usr.UserId;
+                Session["Name"] = usr.Name;
+                Session["RoleId"] = usr.RoleId;
+                //'Patient'
+                if (usr.RoleId == 3)
+                {
+                    return RedirectToRoute(new
+                    {
+                        controller = "Patient",
+                        action = "index",
+                    });
+                }
+                else
+                {
+                    return View();
+                }
+            }
+        }
+
+
+        [HttpGet]
+        public ActionResult ForgetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult ForgetPassword(string inputEmail, string inputPassword, string inputconfirmPassword)
+        {
+            User usr = null;
+            if (inputPassword == inputconfirmPassword)
+            {
+                usr = user.ChangePassword(inputEmail, inputPassword, inputconfirmPassword);
+                if (usr == null)
+                {
+                    Session["Invalid"] = true;
+                    return View();
+                }
+                else
+                {
+                    Session["UserId"] = usr.UserId;
+                    Session["Name"] = usr.Name;
+                    Session["RoleId"] = usr.RoleId;
+                    //'Administrator'
+                    if (usr.RoleId == 1)
+                    {
+                        return RedirectToRoute(new
+                        {
+
+                            controller = "Admin",
+                            action = "index",
+
+                        });
+                    }
+                    //'Doctor'
+                    else if (usr.RoleId == 2)
+                    {
+                        return RedirectToRoute(new
+                        {
+                            controller = "Doctor",
+                            action = "index",
+                        });
+                    }
+                    //'Patient'
+                    else if (usr.RoleId == 3)
+                    {
+                        return RedirectToRoute(new
+                        {
+                            controller = "Patient",
+                            action = "index",
+                        });
+                    }
+
+                    //'Fontoffice'
+                    else if (usr.RoleId == 4)
+                    {
+                        return RedirectToRoute(new
+                        {
+                            controller = "Frontoffice",
+                            action = "index",
+                        });
+                    }
+
+                    //'Pharmacy'
+                    else if (usr.RoleId == 5)
+                    {
+                        return RedirectToRoute(new
+                        {
+                            controller = "Pharmacy",
+                            action = "index",
+                        });
+
+                    }
+                    else
+                    {
+                        return View();
+                    }
+                }
+            }
+            else
+            {
+                Session["Invalid"] = false;
+                return View();
+            }
+          
+        }
+    }
+}

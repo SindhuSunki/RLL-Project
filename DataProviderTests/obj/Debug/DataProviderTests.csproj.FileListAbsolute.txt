@@ -1,0 +1,2 @@
+E:\Sindhu\DataProvider\DataProviderTests\obj\Debug\DataProviderTests.csproj.AssemblyReference.cache
+E:\Sindhu\DataProvider\DataProviderTests\obj\Debug\DataProviderTests.csproj.CoreCompileInputs.cache
